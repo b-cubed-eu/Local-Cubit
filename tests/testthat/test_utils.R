@@ -38,41 +38,6 @@ test_that("filter_missing_coords excludes rows with missing coordinates", {
 })
 
 
-test_that("check_req_fields returns NULL when all required fields are present", {
-  data <- data.frame(
-    countryCode = "US",
-    scientificName = "Test species",
-    decimalLatitude = 10,
-    decimalLongitude = 5,
-    year = 2020,
-    speciesKey = 123,
-    stringsAsFactors = FALSE
-  )
-
-  expect_null(check_req_fields(data))
-})
-
-
-test_that("check_req_fields reports missing required columns", {
-  data <- data.frame(
-    scientificName = "Test species",
-    decimalLatitude = 10,
-    year = 2020,
-    speciesKey = 123,
-    stringsAsFactors = FALSE
-  )
-
-  expect_match(
-    check_req_fields(data, 
-                     req_fields = c('decimalLatitude', 'decimalLongitude', 'scientificName', 'year', 'speciesKey', 'countryCode')), 
-                        "Missing decimalLongitude, countryCode. ")
-  expect_match(
-    check_req_fields(data, "Missing decimalLongitude"),
-    "Missing decimalLongitude"
-  )
-})
-
-
 test_that("assess_uncertainty adds default uncertainty when column is missing", {
   data <- data.frame(
     decimalLatitude = 10,
@@ -191,7 +156,6 @@ test_that("floppydisk2cube aggregates occurrences into target grid cells", {
   result <- floppydisk2cube(
     data_in = occ_data,
     aggregate_columns = c("species", "eeacellcode"),
-    uncertainty_columns = c("coordinateUncertaintyInMeters"),
     target_grid = target_grid,
     grid_crs = st_crs(4326), 
     seed=42

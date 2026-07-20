@@ -61,23 +61,8 @@ filter_missing_coords <- function(data, y_col = "decimalLatitude", x_col = "deci
 "%nin%" <- Negate("%in%")
 
 
-#no longer necessary
-check_req_fields <- function(data, req_fields=c("decimalLatitude", "decimalLongitude")) {
-  # checks for required fields
-  #req_fields argument expects a character vector
-  missing_fields <- c()
-  for (f in req_fields) {
-    if (f %nin% names(data)) {
-      missing_fields <- c(missing_fields, f)
-    }
-  }
-  if (!is.null(missing_fields)){
-    return(paste("Missing", paste(missing_fields, collapse=', ') , ".", "Please select a dataset containing the following information: ", paste(req_fields, collapse=', '), ""))
-  }
-}
-
 # load preset grids
-#grid_10km <- st_read("eea_grid/Grid_ETRS89-LAEA_10K.shp")
+grid_10km <- st_read("eea_grid/Grid_ETRS89-LAEA_10K.shp")
 grid_100km <- st_read("eea_grid/Grid_ETRS89-LAEA_100K.shp")
 
 
@@ -152,13 +137,11 @@ get_uncertainty_time_period <- function(time_periods, value, default_na){
 assess_uncertainty <- function(data, coord_uncertainty_col = "coordinateUncertainty", default_na = 1000, special_rule=NA) {
   if (is.na(special_rule) ){
     
-      if (coord_uncertainty_col %in% names(data)) {
+     
         
-        data <- data %>% mutate(coordinateUncertainty = ifelse(is.na(coordinateUncertainty), 
+      data <- data %>% mutate(coordinateUncertainty = ifelse(is.na(coordinateUncertainty), 
                                                                        default_na, coordinateUncertainty))
-      } else {
-        data$coordinateUncertainty <- default_na
-      }
+      
     
   } else {
     

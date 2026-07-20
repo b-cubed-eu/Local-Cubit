@@ -62,26 +62,22 @@ process_big_file <- function(file_path, output_file, input_sep, input_grid_sourc
       
       
       target_grid <- st_read(input_file_grid_datapath)
-      #target_grid <- target_grid[1:100,]
-      target_grid <- rename(target_grid, 'CellCode'=GRID100K)
+     
       grid_crs <- st_crs(input_grid_crs)
     }
-    
-    
     
     
     if (isFALSE(input_use_custom_uncertainty)){
       
       
        
-       corrected_uncertainty <- assess_uncertainty(df_filt, coord_uncertainty_col = input_coordinate_uncertainty_col,
-                                                      default_na = input_coordinate_uncertainty_na)
+       corrected_uncertainty <- assess_uncertainty(df_filt, default_na = input_coordinate_uncertainty_na)
        
        
     } else {
       
       #if the user chose time period-specific default coordinate uncertainty
-      corrected_uncertainty <<- assess_uncertainty(df_filt, default_na= input_coordinate_uncertainty_na, special_rule=input_custom_uncertainty)
+      corrected_uncertainty <- assess_uncertainty(df_filt, default_na= input_coordinate_uncertainty_na, special_rule=input_custom_uncertainty)
       
      
     }
@@ -95,6 +91,8 @@ process_big_file <- function(file_path, output_file, input_sep, input_grid_sourc
                                       grid_crs = grid_crs,
                                       seed=input_seed)
     
+    
+    
     if(exists('floppydatacube_all')){
       floppydatacube_all <- bind_rows(floppydatacube_all, floppydatacube_cur)
     } else {
@@ -106,7 +104,7 @@ process_big_file <- function(file_path, output_file, input_sep, input_grid_sourc
   }
   print('merging')
   
-  merged_chunks <- floppydatacube_all %>% group_by(across(all_of(input_aggregate_cols))) %>%
+  merged_chunks <- floppydatacube_all %>% group_by(across(all_of(c(input_aggregate_cols, 'CellCode')))) %>%
     summarise(
       coordinateUncertainty =
         min(coordinateUncertainty, na.rm = TRUE),
